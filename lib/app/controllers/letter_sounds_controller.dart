@@ -2,14 +2,69 @@ import 'package:flutter/material.dart';
 
 import '../models/letter_sound_models.dart';
 
-const List<LetterSoundStage> letterSoundStages = [
+const Map<String, String> letterVideoUrls = {
+  'A':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080146167762.mp4',
+  'B':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080148692811.mp4',
+  'C':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080156109163.mp4',
+  'D':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080158879632.mp4',
+  'E':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080201057188.mp4',
+  'F':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080202102091.mp4',
+  'G':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080212717679.mp4',
+  'H':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080225063246.mp4',
+  'I':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080230102091.mp4',
+  'J':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080250061156.mp4',
+  'K':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080255456722.mp4',
+  'L':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080301656959.mp4',
+  'M':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080307221489.mp4',
+  'N':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080313218972.mp4',
+  'O':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080314820868.mp4',
+  'P':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080315944039.mp4',
+  'Q':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080318589890.mp4',
+  'R':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080321023984.mp4',
+  'S':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080324301532.mp4',
+  'T':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080328826049.mp4',
+  'U':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080331898658.mp4',
+  'V':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080338157618.mp4',
+  'W':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080343143661.mp4',
+  'X':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080349391786.mp4',
+  'Y':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080352797882.mp4',
+  'Z':
+      'https://10000yun.com/wp-content/uploads/2026/05/20260529080358249385.mp4',
+};
+
+final List<LetterSoundStage> letterSoundStages = [
   LetterSoundStage(
     code: 'A-C',
     title: 'A-C Sound Party',
-    subtitle: '先听声音，再看图，再勇敢开口跟读。',
-    chinesePrompt: '这一关有A、B、C。先点大卡片听发音，再玩听音找字母和找图片。',
-    primaryColor: Color(0xFFFFD180),
-    secondaryColor: Color(0xFFFF8A65),
+    subtitle: '先听声音，再看图片，再勇敢开口跟读。',
+    chinesePrompt: '这一关有 A、B、C。先点大卡片听发音，再玩听音找字母和找图片。',
+    primaryColor: const Color(0xFFFFD180),
+    secondaryColor: const Color(0xFFFF8A65),
     items: [
       LetterSoundItem(
         letter: 'A',
@@ -19,9 +74,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'apple',
         primaryEmoji: '🐜',
         secondaryEmoji: '🍎',
-        chinesePrompt: 'A张大嘴，像小蚂蚁在打招呼。先听a，再听ant和apple。',
+        chinesePrompt: 'A 张大嘴，像小蚂蚁在打招呼。先听 a，再听 ant 和 apple。',
         chant: 'A, a, a. Ant and apple.',
-        accentColor: Color(0xFFFFB74D),
+        accentColor: const Color(0xFFFFB74D),
+        videoUrl: letterVideoUrls['A']!,
       ),
       LetterSoundItem(
         letter: 'B',
@@ -31,9 +87,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'banana',
         primaryEmoji: '🐦',
         secondaryEmoji: '🍌',
-        chinesePrompt: 'B先把小嘴巴闭起来，再轻轻蹦出b的声音。',
+        chinesePrompt: 'B 先把小嘴巴闭起来，再轻轻蹦出 b 的声音。',
         chant: 'B, b, b. Bird and banana.',
-        accentColor: Color(0xFFBA68C8),
+        accentColor: const Color(0xFFBA68C8),
+        videoUrl: letterVideoUrls['B']!,
       ),
       LetterSoundItem(
         letter: 'C',
@@ -43,9 +100,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'cake',
         primaryEmoji: '🐱',
         secondaryEmoji: '🍰',
-        chinesePrompt: '这里的C像小猫轻轻咔一声，听起来像k。',
+        chinesePrompt: '这里的 C 像小猫轻轻咔一声，听起来像 k。',
         chant: 'C, c, c. Cat and cake.',
-        accentColor: Color(0xFF4DB6AC),
+        accentColor: const Color(0xFF4DB6AC),
+        videoUrl: letterVideoUrls['C']!,
       ),
     ],
   ),
@@ -53,9 +111,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'D-F',
     title: 'D-F Drum Beat',
     subtitle: '会敲鼓、会吹风、会微笑的大声音都在这里。',
-    chinesePrompt: '这一关有D、E、F。可以先听卡片，再试试哪一个字母和单词是一家人。',
-    primaryColor: Color(0xFFA5D6A7),
-    secondaryColor: Color(0xFF66BB6A),
+    chinesePrompt: '这一关有 D、E、F。可以先听卡片，再试试哪一个字母和单词是一家人。',
+    primaryColor: const Color(0xFFA5D6A7),
+    secondaryColor: const Color(0xFF66BB6A),
     items: [
       LetterSoundItem(
         letter: 'D',
@@ -65,9 +123,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'desk',
         primaryEmoji: '🐶',
         secondaryEmoji: '🪑',
-        chinesePrompt: 'D像轻轻敲小鼓，舌尖点一下，上面就出来d。',
+        chinesePrompt: 'D 像轻轻敲小鼓，舌尖点一下，上面就出来 d。',
         chant: 'D, d, d. Dog and desk.',
-        accentColor: Color(0xFF81C784),
+        accentColor: const Color(0xFF81C784),
+        videoUrl: letterVideoUrls['D']!,
       ),
       LetterSoundItem(
         letter: 'E',
@@ -77,9 +136,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'elephant',
         primaryEmoji: '🥚',
         secondaryEmoji: '🐘',
-        chinesePrompt: 'E轻轻笑一笑，像看到大象时说eh。',
+        chinesePrompt: 'E 轻轻笑一笑，像看到大象时说 eh。',
         chant: 'E, e, e. Egg and elephant.',
-        accentColor: Color(0xFFFFD54F),
+        accentColor: const Color(0xFFFFD54F),
+        videoUrl: letterVideoUrls['E']!,
       ),
       LetterSoundItem(
         letter: 'F',
@@ -89,9 +149,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'flower',
         primaryEmoji: '🐟',
         secondaryEmoji: '🌼',
-        chinesePrompt: 'F像吹羽毛，上牙轻轻碰下唇，风就吹出来了。',
+        chinesePrompt: 'F 像吹羽毛，上牙轻轻碰下唇，风就吹出来了。',
         chant: 'F, f, f. Fish and flower.',
-        accentColor: Color(0xFF4FC3F7),
+        accentColor: const Color(0xFF4FC3F7),
+        videoUrl: letterVideoUrls['F']!,
       ),
     ],
   ),
@@ -99,9 +160,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'G-I',
     title: 'G-I Adventure',
     subtitle: '山羊、小马和小墨水一起带我们找声音。',
-    chinesePrompt: '这一关有G、H、I。先听开头声音，再看看哪张图和它最像。',
-    primaryColor: Color(0xFF90CAF9),
-    secondaryColor: Color(0xFF42A5F5),
+    chinesePrompt: '这一关有 G、H、I。先听开头声音，再看看哪张图和它最像。',
+    primaryColor: const Color(0xFF90CAF9),
+    secondaryColor: const Color(0xFF42A5F5),
     items: [
       LetterSoundItem(
         letter: 'G',
@@ -111,9 +172,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'goat',
         primaryEmoji: '👧',
         secondaryEmoji: '🐐',
-        chinesePrompt: 'G从嘴巴后面滚出来，像山羊goat开头的g。',
+        chinesePrompt: 'G 从嘴巴后面滚出来，像山羊 goat 开头的 g。',
         chant: 'G, g, g. Girl and goat.',
-        accentColor: Color(0xFF64B5F6),
+        accentColor: const Color(0xFF64B5F6),
+        videoUrl: letterVideoUrls['G']!,
       ),
       LetterSoundItem(
         letter: 'H',
@@ -123,9 +185,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'horse',
         primaryEmoji: '🎩',
         secondaryEmoji: '🐴',
-        chinesePrompt: 'H像对着镜子哈一口气，轻轻把气送出来。',
+        chinesePrompt: 'H 像对着镜子哈一口气，轻轻把气送出来。',
         chant: 'H, h, h. Hat and horse.',
-        accentColor: Color(0xFFFFB74D),
+        accentColor: const Color(0xFFFFB74D),
+        videoUrl: letterVideoUrls['H']!,
       ),
       LetterSoundItem(
         letter: 'I',
@@ -135,9 +198,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'insect',
         primaryEmoji: '🖋️',
         secondaryEmoji: '🐞',
-        chinesePrompt: 'I短短地响一下，像小墨水滴答一下。',
+        chinesePrompt: 'I 短短地响一下，像小墨水滴答一下。',
         chant: 'I, i, i. Ink and insect.',
-        accentColor: Color(0xFFF06292),
+        accentColor: const Color(0xFFF06292),
+        videoUrl: letterVideoUrls['I']!,
       ),
     ],
   ),
@@ -145,9 +209,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'J-L',
     title: 'J-L Jungle Ride',
     subtitle: '果汁、风筝和小狮子，带着声音往前跑。',
-    chinesePrompt: '这一关有J、K、L。卡片里有两个例词，点小图片也能单独听声音。',
-    primaryColor: Color(0xFFFFCC80),
-    secondaryColor: Color(0xFFFFA726),
+    chinesePrompt: '这一关有 J、K、L。卡片里有两个例词，点小图片也能单独听声音。',
+    primaryColor: const Color(0xFFFFCC80),
+    secondaryColor: const Color(0xFFFFA726),
     items: [
       LetterSoundItem(
         letter: 'J',
@@ -157,9 +221,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'jellyfish',
         primaryEmoji: '🧃',
         secondaryEmoji: '🪼',
-        chinesePrompt: 'J像果汁跳出来，先轻轻挡住，再放开声音。',
+        chinesePrompt: 'J 像果汁跳出来，先轻轻挡住，再放开声音。',
         chant: 'J, j, j. Juice and jellyfish.',
-        accentColor: Color(0xFFFFA726),
+        accentColor: const Color(0xFFFFA726),
+        videoUrl: letterVideoUrls['J']!,
       ),
       LetterSoundItem(
         letter: 'K',
@@ -169,9 +234,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'kangaroo',
         primaryEmoji: '🪁',
         secondaryEmoji: '🦘',
-        chinesePrompt: 'K从嘴巴后面轻轻弹出来，像风筝飞起时的小风。',
+        chinesePrompt: 'K 从嘴巴后面轻轻弹出来，像风筝飞起时的小风。',
         chant: 'K, k, k. Kite and kangaroo.',
-        accentColor: Color(0xFF26C6DA),
+        accentColor: const Color(0xFF26C6DA),
+        videoUrl: letterVideoUrls['K']!,
       ),
       LetterSoundItem(
         letter: 'L',
@@ -181,9 +247,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'lemon',
         primaryEmoji: '🦁',
         secondaryEmoji: '🍋',
-        chinesePrompt: 'L舌尖轻轻碰上面，像小狮子亮相时发出的l。',
+        chinesePrompt: 'L 舌尖轻轻碰上面，像小狮子亮相时发出的 l。',
         chant: 'L, l, l. Lion and lemon.',
-        accentColor: Color(0xFFFFEE58),
+        accentColor: const Color(0xFFFFEE58),
+        videoUrl: letterVideoUrls['L']!,
       ),
     ],
   ),
@@ -191,9 +258,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'M-O',
     title: 'M-O Moon Garden',
     subtitle: '用鼻子哼、用嘴巴圆，一起把声音种出来。',
-    chinesePrompt: '这一关有M、N、O。可以一边听一边看图，再玩小游戏巩固。',
-    primaryColor: Color(0xFFCE93D8),
-    secondaryColor: Color(0xFFAB47BC),
+    chinesePrompt: '这一关有 M、N、O。可以一边听一边看图，再玩小游戏巩固。',
+    primaryColor: const Color(0xFFCE93D8),
+    secondaryColor: const Color(0xFFAB47BC),
     items: [
       LetterSoundItem(
         letter: 'M',
@@ -203,9 +270,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'milk',
         primaryEmoji: '🐵',
         secondaryEmoji: '🥛',
-        chinesePrompt: 'M把嘴巴轻轻闭起来，用鼻子哼一声就出来了。',
+        chinesePrompt: 'M 把嘴巴轻轻闭起来，用鼻子哼一声就出来了。',
         chant: 'M, m, m. Monkey and milk.',
-        accentColor: Color(0xFFBA68C8),
+        accentColor: const Color(0xFFBA68C8),
+        videoUrl: letterVideoUrls['M']!,
       ),
       LetterSoundItem(
         letter: 'N',
@@ -215,9 +283,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'nurse',
         primaryEmoji: '👃',
         secondaryEmoji: '🧑‍⚕️',
-        chinesePrompt: 'N舌尖碰一下上面，鼻子帮忙，让声音轻轻出来。',
+        chinesePrompt: 'N 舌尖碰一下上面，鼻子帮忙，让声音轻轻出来。',
         chant: 'N, n, n. Nose and nurse.',
-        accentColor: Color(0xFF7986CB),
+        accentColor: const Color(0xFF7986CB),
+        videoUrl: letterVideoUrls['N']!,
       ),
       LetterSoundItem(
         letter: 'O',
@@ -227,9 +296,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'orange',
         primaryEmoji: '🐂',
         secondaryEmoji: '🍊',
-        chinesePrompt: 'O把嘴巴圆圆地张开，像看到橙子时说o。',
+        chinesePrompt: 'O 把嘴巴圆圆地张开，像看到橙子时说 o。',
         chant: 'O, o, o. Ox and orange.',
-        accentColor: Color(0xFFFF8A65),
+        accentColor: const Color(0xFFFF8A65),
+        videoUrl: letterVideoUrls['O']!,
       ),
     ],
   ),
@@ -237,9 +307,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'P-R',
     title: 'P-R Rocket Town',
     subtitle: '爆米花、问题和小兔子，把声音送上天空。',
-    chinesePrompt: '这一关有P、Q、R。先听，再点，再答题，慢慢就会更熟。',
-    primaryColor: Color(0xFFFFAB91),
-    secondaryColor: Color(0xFFFF7043),
+    chinesePrompt: '这一关有 P、Q、R。先听，再点，再答题，慢慢就会更熟。',
+    primaryColor: const Color(0xFFFFAB91),
+    secondaryColor: const Color(0xFFFF7043),
     items: [
       LetterSoundItem(
         letter: 'P',
@@ -249,9 +319,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'panda',
         primaryEmoji: '🍕',
         secondaryEmoji: '🐼',
-        chinesePrompt: 'P像爆米花噗一下，双唇一弹，声音就出来了。',
+        chinesePrompt: 'P 像爆米花噗一下，双唇一弹，声音就出来了。',
         chant: 'P, p, p. Pizza and panda.',
-        accentColor: Color(0xFFFF8A65),
+        accentColor: const Color(0xFFFF8A65),
+        videoUrl: letterVideoUrls['P']!,
       ),
       LetterSoundItem(
         letter: 'Q',
@@ -261,9 +332,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'question',
         primaryEmoji: '👑',
         secondaryEmoji: '❓',
-        chinesePrompt: 'Q常常和u一起走，像quick quick那样往前跳。',
+        chinesePrompt: 'Q 常常和 u 一起走，像 quick quick 那样往前跳。',
         chant: 'Q, q, q. Queen and question.',
-        accentColor: Color(0xFF9575CD),
+        accentColor: const Color(0xFF9575CD),
+        videoUrl: letterVideoUrls['Q']!,
       ),
       LetterSoundItem(
         letter: 'R',
@@ -273,9 +345,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'robot',
         primaryEmoji: '🐰',
         secondaryEmoji: '🤖',
-        chinesePrompt: 'R嘴巴微微圆起来，像小兔子快跑时的r。',
+        chinesePrompt: 'R 嘴巴微微圆起来，像小兔子快跑时的 r。',
         chant: 'R, r, r. Rabbit and robot.',
-        accentColor: Color(0xFF4DD0E1),
+        accentColor: const Color(0xFF4DD0E1),
+        videoUrl: letterVideoUrls['R']!,
       ),
     ],
   ),
@@ -283,9 +356,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'S-U',
     title: 'S-U Sunny Trail',
     subtitle: '小蛇、老虎和雨伞，一起把声音走明白。',
-    chinesePrompt: '这一关有S、T、U。听完可以马上挑战小游戏，看看自己记住没有。',
-    primaryColor: Color(0xFFFFF59D),
-    secondaryColor: Color(0xFFFFD54F),
+    chinesePrompt: '这一关有 S、T、U。听完可以马上挑战小游戏，看看自己记住没有。',
+    primaryColor: const Color(0xFFFFF59D),
+    secondaryColor: const Color(0xFFFFD54F),
     items: [
       LetterSoundItem(
         letter: 'S',
@@ -295,9 +368,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'spider',
         primaryEmoji: '🐍',
         secondaryEmoji: '🕷️',
-        chinesePrompt: 'S像小蛇嘶嘶滑过去，牙齿靠近，风从中间出来。',
+        chinesePrompt: 'S 像小蛇嘶嘶滑过去，牙齿靠近，风从中间出来。',
         chant: 'S, s, s. Snake and spider.',
-        accentColor: Color(0xFFFFD54F),
+        accentColor: const Color(0xFFFFD54F),
+        videoUrl: letterVideoUrls['S']!,
       ),
       LetterSoundItem(
         letter: 'T',
@@ -307,9 +381,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'tomato',
         primaryEmoji: '🐯',
         secondaryEmoji: '🍅',
-        chinesePrompt: 'T像轻轻敲一下桌子，舌尖一点就弹出来了。',
+        chinesePrompt: 'T 像轻轻敲一下桌子，舌尖一点就弹出来了。',
         chant: 'T, t, t. Tiger and tomato.',
-        accentColor: Color(0xFFFF8A65),
+        accentColor: const Color(0xFFFF8A65),
+        videoUrl: letterVideoUrls['T']!,
       ),
       LetterSoundItem(
         letter: 'U',
@@ -319,19 +394,20 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'uncle',
         primaryEmoji: '☂️',
         secondaryEmoji: '🧔',
-        chinesePrompt: 'U像雨伞打开一样，嘴巴轻轻松松发出u。',
+        chinesePrompt: 'U 像雨伞打开一样，嘴巴轻轻松松发出 u。',
         chant: 'U, u, u. Umbrella and uncle.',
-        accentColor: Color(0xFF4FC3F7),
+        accentColor: const Color(0xFF4FC3F7),
+        videoUrl: letterVideoUrls['U']!,
       ),
     ],
   ),
   LetterSoundStage(
     code: 'V-X',
     title: 'V-X Wonder Walk',
-    subtitle: '会震动的v、会圆嘴的w，还有藏在尾巴里的x。',
-    chinesePrompt: '这一关有V、W、X。X比较特别，常常藏在单词后面，听的时候要留神。',
-    primaryColor: Color(0xFF80DEEA),
-    secondaryColor: Color(0xFF26C6DA),
+    subtitle: '会震动的 v、会圆嘴的 w，还有藏在尾巴里的 x。',
+    chinesePrompt: '这一关有 V、W、X。X 比较特别，常常藏在单词后面，听的时候要留神。',
+    primaryColor: const Color(0xFF80DEEA),
+    secondaryColor: const Color(0xFF26C6DA),
     items: [
       LetterSoundItem(
         letter: 'V',
@@ -341,9 +417,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'vase',
         primaryEmoji: '🚐',
         secondaryEmoji: '🏺',
-        chinesePrompt: 'V和f很像，可是喉咙会轻轻震动，像小车开过来。',
+        chinesePrompt: 'V 和 f 很像，可是喉咙会轻轻震动，像小车开过来。',
         chant: 'V, v, v. Van and vase.',
-        accentColor: Color(0xFF26C6DA),
+        accentColor: const Color(0xFF26C6DA),
+        videoUrl: letterVideoUrls['V']!,
       ),
       LetterSoundItem(
         letter: 'W',
@@ -353,9 +430,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'worm',
         primaryEmoji: '⌚',
         secondaryEmoji: '🪱',
-        chinesePrompt: 'W先把嘴巴圆起来，再轻轻滑开，像wind吹过去。',
+        chinesePrompt: 'W 先把嘴巴圆起来，再轻轻滑开，像 wind 吹过去。',
         chant: 'W, w, w. Watch and worm.',
-        accentColor: Color(0xFF42A5F5),
+        accentColor: const Color(0xFF42A5F5),
+        videoUrl: letterVideoUrls['W']!,
       ),
       LetterSoundItem(
         letter: 'X',
@@ -365,9 +443,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'fox',
         primaryEmoji: '📦',
         secondaryEmoji: '🦊',
-        chinesePrompt: 'X像box尾巴里的ks，两个小声音手拉手出来。',
+        chinesePrompt: 'X 像 box 尾巴里的 ks，两个小声音手拉手出来。',
         chant: 'X, x, x. Box and fox.',
-        accentColor: Color(0xFFEF5350),
+        accentColor: const Color(0xFFEF5350),
+        videoUrl: letterVideoUrls['X']!,
       ),
     ],
   ),
@@ -375,9 +454,9 @@ const List<LetterSoundStage> letterSoundStages = [
     code: 'Y-Z',
     title: 'Y-Z Yay Finish',
     subtitle: '最后两位好朋友，学完就能完成一整圈字母发音旅行。',
-    chinesePrompt: '最后一关有Y和Z。学完这一关，就把整套字母自然拼读走完啦。',
-    primaryColor: Color(0xFFB39DDB),
-    secondaryColor: Color(0xFF7E57C2),
+    chinesePrompt: '最后一关有 Y 和 Z。学完这一关，就把整套字母自然拼读走完啦。',
+    primaryColor: const Color(0xFFB39DDB),
+    secondaryColor: const Color(0xFF7E57C2),
     items: [
       LetterSoundItem(
         letter: 'Y',
@@ -387,9 +466,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'yak',
         primaryEmoji: '🪀',
         secondaryEmoji: '🐂',
-        chinesePrompt: 'Y像yes开头那样轻快地滑出来，声音短短的。',
+        chinesePrompt: 'Y 像 yes 开头那样轻快地滑出来，声音短短的。',
         chant: 'Y, y, y. Yo-yo and yak.',
-        accentColor: Color(0xFF9575CD),
+        accentColor: const Color(0xFF9575CD),
+        videoUrl: letterVideoUrls['Y']!,
       ),
       LetterSoundItem(
         letter: 'Z',
@@ -399,9 +479,10 @@ const List<LetterSoundStage> letterSoundStages = [
         secondaryWord: 'zoo',
         primaryEmoji: '🦓',
         secondaryEmoji: '🦁',
-        chinesePrompt: 'Z像小蜜蜂嗡嗡飞，发声的时候喉咙会轻轻震动。',
+        chinesePrompt: 'Z 像小蜜蜂嗡嗡飞，发声的时候喉咙会轻轻震动。',
         chant: 'Z, z, z. Zebra and zoo.',
-        accentColor: Color(0xFFFFCA28),
+        accentColor: const Color(0xFFFFCA28),
+        videoUrl: letterVideoUrls['Z']!,
       ),
     ],
   ),

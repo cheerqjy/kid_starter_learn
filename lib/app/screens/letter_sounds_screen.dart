@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import '../constant.dart';
 import '../controllers/letter_sounds_controller.dart';
 import '../models/letter_sound_models.dart';
+import '../widgets/letter_video_sheet.dart';
 import '../widgets/page_header.dart';
 
 class LetterSoundsScreen extends StatefulWidget {
@@ -199,6 +199,25 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
     }
   }
 
+  Future<void> _openVideoSheet(int initialIndex) async {
+    HapticFeedback.lightImpact();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.92,
+          child: LetterVideoSheet(
+            items: _stage.items,
+            initialIndex: initialIndex,
+            stageTitle: _stage.title,
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildHeroCard() {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 18),
@@ -237,7 +256,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '听声音、看图片、点一点、说一说。把练习册里的自然拼读，变成小朋友一看就会玩的发音乐园。',
+                      '听声音、看图片、点一点、说一说。现在还可以看字母磨耳朵视频，第一次联网，后面自动缓存。',
                       style: TextStyle(
                         fontSize: 15,
                         height: 1.5,
@@ -323,6 +342,11 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                   _stage.introAudioAsset,
                   () => _speakChinese(_stage.chinesePrompt),
                 ),
+              ),
+              _HeroAction(
+                icon: Icons.ondemand_video_rounded,
+                label: '看本关视频',
+                onTap: () => _openVideoSheet(_selectedItemIndex),
               ),
             ],
           ),
@@ -439,6 +463,14 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                       color: Colors.white,
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    '轻点“看视频”，首次联网缓存，后面打开会更快。',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -486,7 +518,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
   Widget _buildLetterCarousel() {
     final items = _stage.items;
     return SizedBox(
-      height: 356,
+      height: 432,
       child: PageView.builder(
         controller: _pageController,
         itemCount: items.length,
@@ -525,6 +557,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                 item.chantAudioAsset,
                 () => _speakEnglish(item.chant, rate: 0.36),
               ),
+              onWatchVideo: () => _openVideoSheet(index),
             ),
           );
         },
@@ -650,7 +683,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
           ),
           SizedBox(height: 12),
           _TipRow(emoji: '1', text: '先滑动大卡片，听字母音和两个例词。'),
-          _TipRow(emoji: '2', text: '再点“中文提示”，让孩子知道嘴巴怎么发音。'),
+          _TipRow(emoji: '2', text: '再点“看视频”，让孩子边听边磨耳朵。'),
           _TipRow(emoji: '3', text: '最后玩两个小游戏，把声音和图片、字母连起来。'),
         ],
       ),
@@ -781,6 +814,7 @@ class _LetterCard extends StatelessWidget {
   final VoidCallback onPlaySecondary;
   final VoidCallback onPlayPrompt;
   final VoidCallback onPlayChant;
+  final VoidCallback onWatchVideo;
 
   const _LetterCard({
     required this.item,
@@ -790,6 +824,7 @@ class _LetterCard extends StatelessWidget {
     required this.onPlaySecondary,
     required this.onPlayPrompt,
     required this.onPlayChant,
+    required this.onWatchVideo,
   });
 
   @override
@@ -885,6 +920,17 @@ class _LetterCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: onWatchVideo,
+            icon: const Icon(Icons.ondemand_video_rounded),
+            label: const Text('看视频磨耳朵'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: item.accentColor,
+              minimumSize: const Size.fromHeight(48),
+            ),
           ),
           const SizedBox(height: 16),
           Container(

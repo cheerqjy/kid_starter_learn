@@ -10,6 +10,7 @@ class LetterSoundItem {
   final String secondaryWord;
   final String primaryEmoji;
   final String secondaryEmoji;
+  final String videoUrl;
   final String chinesePrompt;
   final String chant;
   final Color accentColor;
@@ -22,6 +23,7 @@ class LetterSoundItem {
     required this.secondaryWord,
     required this.primaryEmoji,
     required this.secondaryEmoji,
+    required this.videoUrl,
     required this.chinesePrompt,
     required this.chant,
     required this.accentColor,
