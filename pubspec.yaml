@@ -75,6 +75,10 @@ flutter:
     - assets/audio/numeric_en/
     - assets/audio/animals/
     - assets/audio/birds/
+    - assets/audio/tts/vocabulary/
+    - assets/audio/tts/phonics/word/
+    - assets/audio/tts/phonics/phrase/
+    - assets/audio/tts/phonics/prompt/
 
     - assets/images/
     - assets/images/animals/

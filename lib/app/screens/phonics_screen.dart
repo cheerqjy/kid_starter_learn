@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../constant.dart';
 import '../controllers/phonics_controller.dart';
@@ -17,6 +18,7 @@ class PhonicsScreen extends StatefulWidget {
 class _PhonicsScreenState extends State<PhonicsScreen> {
   final ScrollController _scrollController = ScrollController();
   final FlutterTts _tts = FlutterTts();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   double _offset = 0;
 
   @override
@@ -28,6 +30,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _audioPlayer.dispose();
     _tts.stop();
     super.dispose();
   }
@@ -56,8 +59,24 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
     await _tts.speak(text);
   }
 
+  Future<void> _playAssetOrSpeak(
+    String assetPath,
+    Future<void> Function() fallback,
+  ) async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.setAsset(assetPath);
+      await _audioPlayer.play();
+    } catch (_) {
+      await fallback();
+    }
+  }
+
   void _showSoundSheet(PhonicsItem item) {
-    _speakEnglish(item.exampleWord);
+    _playAssetOrSpeak(
+      item.wordAudioAsset,
+      () => _speakEnglish(item.exampleWord),
+    );
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -176,24 +195,36 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                       runSpacing: 10,
                       children: [
                         FilledButton.tonalIcon(
-                          onPressed: () => _speakChinese(item.chinesePrompt),
+                          onPressed: () => _playAssetOrSpeak(
+                            item.promptAudioAsset,
+                            () => _speakChinese(item.chinesePrompt),
+                          ),
                           icon: const Icon(Icons.record_voice_over),
                           label: const Text('中文提示'),
                         ),
                         FilledButton.tonalIcon(
-                          onPressed: () => _speakEnglish(item.soundCue),
+                          onPressed: () => _playAssetOrSpeak(
+                            item.wordAudioAsset,
+                            () => _speakEnglish(item.soundCue),
+                          ),
                           icon: const Icon(Icons.volume_up),
                           label: const Text('听声音'),
                         ),
                         FilledButton.tonalIcon(
-                          onPressed: () => _speakEnglish(item.exampleWord),
+                          onPressed: () => _playAssetOrSpeak(
+                            item.wordAudioAsset,
+                            () => _speakEnglish(item.exampleWord),
+                          ),
                           icon: const Icon(Icons.music_note),
                           label: const Text('听单词'),
                         ),
                         FilledButton.tonalIcon(
-                          onPressed: () => _speakEnglish(
-                            'Listen and say. ${item.examplePhrase}',
-                            rate: 0.34,
+                          onPressed: () => _playAssetOrSpeak(
+                            item.phraseAudioAsset,
+                            () => _speakEnglish(
+                              'Listen and say. ${item.examplePhrase}',
+                              rate: 0.34,
+                            ),
                           ),
                           icon: const Icon(Icons.mic),
                           label: const Text('跟我读'),

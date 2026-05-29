@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../models/vocabulary_item.dart';
 import '../widgets/page_header.dart';
@@ -27,24 +28,19 @@ class VocabularyScreen extends StatefulWidget {
 class _VocabularyScreenState extends State<VocabularyScreen> {
   final _scrollController = ScrollController();
   final _tts = FlutterTts();
+  final _audioPlayer = AudioPlayer();
   double offset = 0;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _configureTts();
-  }
-
-  Future<void> _configureTts() async {
-    await _tts.setLanguage('en-US');
-    await _tts.setSpeechRate(0.38);
-    await _tts.setPitch(1.0);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _audioPlayer.dispose();
     _tts.stop();
     super.dispose();
   }
@@ -58,7 +54,21 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   Future<void> _speak(String text) async {
     HapticFeedback.selectionClick();
     await _tts.stop();
+    await _tts.setLanguage('en-US');
+    await _tts.setSpeechRate(0.38);
+    await _tts.setPitch(1.0);
     await _tts.speak(text);
+  }
+
+  Future<void> _playAudio(VocabularyItem item) async {
+    HapticFeedback.selectionClick();
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.setAsset(item.audioAsset);
+      await _audioPlayer.play();
+    } catch (_) {
+      await _speak(item.title);
+    }
   }
 
   @override
@@ -91,7 +101,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                   final item = widget.items[index];
                   return VocabularyCard(
                     item: item,
-                    onTap: () => _speak(item.title),
+                    onTap: () => _playAudio(item),
                   );
                 },
                 childCount: widget.items.length,

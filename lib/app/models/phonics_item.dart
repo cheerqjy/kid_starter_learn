@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/audio_keys.dart';
+
 class PhonicsItem {
   final String symbol;
   final String title;
@@ -20,6 +22,16 @@ class PhonicsItem {
     required this.mouthTip,
     required this.backgroundColor,
   });
+
+  String get _audioKey => slugifyKey(title);
+
+  String get wordAudioAsset => 'assets/audio/tts/phonics/word/$_audioKey.mp3';
+
+  String get phraseAudioAsset =>
+      'assets/audio/tts/phonics/phrase/$_audioKey.mp3';
+
+  String get promptAudioAsset =>
+      'assets/audio/tts/phonics/prompt/$_audioKey.mp3';
 }
 
 class PhonicsGroup {

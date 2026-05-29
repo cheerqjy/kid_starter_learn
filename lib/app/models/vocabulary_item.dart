@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/audio_keys.dart';
+
 class VocabularyItem {
   final String title;
   final String assetPath;
@@ -12,6 +14,9 @@ class VocabularyItem {
   });
 
   bool get isSvg => assetPath.toLowerCase().endsWith('.svg');
+
+  String get audioAsset =>
+      'assets/audio/tts/vocabulary/${slugifyKey(title)}.mp3';
 }
 
 class VocabularyModule {
