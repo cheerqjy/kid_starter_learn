@@ -8,10 +8,14 @@ import edge_tts
 ROOT = Path(__file__).resolve().parents[1]
 VOCAB_FILE = ROOT / "lib" / "app" / "controllers" / "vocabulary_modules.dart"
 PHONICS_FILE = ROOT / "lib" / "app" / "controllers" / "phonics_controller.dart"
+PREPOSITIONS_FILE = ROOT / "lib" / "app" / "controllers" / "prepositions_controller.dart"
 VOCAB_DIR = ROOT / "assets" / "audio" / "tts" / "vocabulary"
 PHONICS_WORD_DIR = ROOT / "assets" / "audio" / "tts" / "phonics" / "word"
 PHONICS_PHRASE_DIR = ROOT / "assets" / "audio" / "tts" / "phonics" / "phrase"
 PHONICS_PROMPT_DIR = ROOT / "assets" / "audio" / "tts" / "phonics" / "prompt"
+PREPOSITIONS_WORD_DIR = ROOT / "assets" / "audio" / "tts" / "prepositions" / "word"
+PREPOSITIONS_PHRASE_DIR = ROOT / "assets" / "audio" / "tts" / "prepositions" / "phrase"
+PREPOSITIONS_PROMPT_DIR = ROOT / "assets" / "audio" / "tts" / "prepositions" / "prompt"
 EN_VOICE = "en-US-AvaNeural"
 ZH_VOICE = "zh-CN-XiaoxiaoNeural"
 
@@ -51,6 +55,31 @@ def parse_phonics_items() -> list[dict[str, str]]:
                 "sound_cue": match[4],
                 "prompt": match[5],
                 "mouth_tip": match[6],
+            }
+        )
+    return items
+
+
+def parse_prepositions() -> list[dict[str, str]]:
+    text = PREPOSITIONS_FILE.read_text(encoding="utf-8")
+    pattern = re.compile(
+        r"PrepositionScene\(\s*"
+        r"title: '([^']*)',\s*"
+        r"chineseTitle: '([^']*)',\s*"
+        r"exampleSentence: '([^']*)',\s*"
+        r"chinesePrompt: '([^']*)',\s*"
+        r"playHint: '([^']*)',",
+        re.S,
+    )
+    items = []
+    for match in pattern.findall(text):
+        items.append(
+            {
+                "title": match[0],
+                "chinese_title": match[1],
+                "example_sentence": match[2],
+                "chinese_prompt": match[3],
+                "play_hint": match[4],
             }
         )
     return items
@@ -97,6 +126,30 @@ async def main() -> None:
                 item["prompt"],
                 ZH_VOICE,
                 PHONICS_PROMPT_DIR / f"{key}.mp3",
+            )
+        )
+
+    for item in parse_prepositions():
+        key = slugify(item["title"])
+        tasks.append(
+            (
+                item["title"],
+                EN_VOICE,
+                PREPOSITIONS_WORD_DIR / f"{key}.mp3",
+            )
+        )
+        tasks.append(
+            (
+                item["example_sentence"],
+                EN_VOICE,
+                PREPOSITIONS_PHRASE_DIR / f"{key}.mp3",
+            )
+        )
+        tasks.append(
+            (
+                item["chinese_prompt"],
+                ZH_VOICE,
+                PREPOSITIONS_PROMPT_DIR / f"{key}.mp3",
             )
         )
 

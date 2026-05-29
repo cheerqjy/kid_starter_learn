@@ -9,6 +9,7 @@ import 'alphabet_en_screen.dart';
 import 'color_screen.dart';
 import 'numeric_en_screen.dart';
 import 'phonics_screen.dart';
+import 'prepositions_screen.dart';
 import 'shape_screen.dart';
 import 'story_screen.dart';
 import 'vocabulary_screen.dart';
@@ -82,6 +83,13 @@ class HomeScreen extends StatelessWidget {
         secondaryColor: Colors.deepOrangeAccent,
         fontSize: 58,
         screen: const PhonicsScreen(),
+      ),
+      CategoryCard(
+        title: 'Where?',
+        primaryColor: Colors.lightBlueAccent[100]!,
+        secondaryColor: Colors.blue,
+        fontSize: 60,
+        screen: const PrepositionsScreen(),
       ),
       CategoryCard(
         title: 'ABC',

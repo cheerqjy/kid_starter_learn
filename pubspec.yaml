@@ -79,6 +79,9 @@ flutter:
     - assets/audio/tts/phonics/word/
     - assets/audio/tts/phonics/phrase/
     - assets/audio/tts/phonics/prompt/
+    - assets/audio/tts/prepositions/word/
+    - assets/audio/tts/prepositions/phrase/
+    - assets/audio/tts/prepositions/prompt/
 
     - assets/images/
     - assets/images/animals/

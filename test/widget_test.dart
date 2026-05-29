@@ -10,6 +10,7 @@ void main() {
 
     expect(find.text('Animals'), findsOneWidget);
     expect(find.text('Phonics'), findsOneWidget);
+    expect(find.text('Where?'), findsOneWidget);
     expect(find.text('Body'), findsOneWidget);
     expect(find.text('Flowers'), findsOneWidget);
   });
