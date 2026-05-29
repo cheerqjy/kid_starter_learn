@@ -7,6 +7,7 @@ import '../models/vocabulary_item.dart';
 import '../widgets/category_card.dart';
 import 'alphabet_en_screen.dart';
 import 'color_screen.dart';
+import 'letter_sounds_screen.dart';
 import 'numeric_en_screen.dart';
 import 'phonics_screen.dart';
 import 'prepositions_screen.dart';
@@ -100,6 +101,15 @@ class HomeScreen extends StatelessWidget {
           primaryColor: Colors.purpleAccent[100]!,
           secondaryColor: Colors.purple,
         ),
+      ),
+      const CategoryCard(
+        title: 'ABC\nSounds',
+        primaryColor: Color(0xFFFFCC80),
+        secondaryColor: Color(0xFFFF8A65),
+        fontSize: 48,
+        letterSpacing: 1.4,
+        maxLines: 2,
+        screen: LetterSoundsScreen(),
       ),
       _buildModuleCard(bodyPartsModule),
       _buildModuleCard(fruitsAndVeggiesModule),

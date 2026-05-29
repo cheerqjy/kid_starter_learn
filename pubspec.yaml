@@ -82,6 +82,11 @@ flutter:
     - assets/audio/tts/prepositions/word/
     - assets/audio/tts/prepositions/phrase/
     - assets/audio/tts/prepositions/prompt/
+    - assets/audio/tts/letter_sounds/intro/
+    - assets/audio/tts/letter_sounds/sound/
+    - assets/audio/tts/letter_sounds/word/
+    - assets/audio/tts/letter_sounds/chant/
+    - assets/audio/tts/letter_sounds/prompt/
 
     - assets/images/
     - assets/images/animals/
