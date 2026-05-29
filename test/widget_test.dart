@@ -9,6 +9,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(find.text('Animals'), findsOneWidget);
+    expect(find.text('Phonics'), findsOneWidget);
     expect(find.text('Body'), findsOneWidget);
     expect(find.text('Flowers'), findsOneWidget);
   });

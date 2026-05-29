@@ -8,6 +8,7 @@ import '../widgets/category_card.dart';
 import 'alphabet_en_screen.dart';
 import 'color_screen.dart';
 import 'numeric_en_screen.dart';
+import 'phonics_screen.dart';
 import 'shape_screen.dart';
 import 'story_screen.dart';
 import 'vocabulary_screen.dart';
@@ -74,6 +75,13 @@ class HomeScreen extends StatelessWidget {
           primaryColor: Colors.greenAccent[100]!,
           secondaryColor: Colors.green,
         ),
+      ),
+      CategoryCard(
+        title: 'Phonics',
+        primaryColor: Colors.amberAccent[100]!,
+        secondaryColor: Colors.deepOrangeAccent,
+        fontSize: 58,
+        screen: const PhonicsScreen(),
       ),
       CategoryCard(
         title: 'ABC',
