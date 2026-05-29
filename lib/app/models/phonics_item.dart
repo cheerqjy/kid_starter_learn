@@ -32,6 +32,8 @@ class PhonicsItem {
 
   String get promptAudioAsset =>
       'assets/audio/tts/phonics/prompt/$_audioKey.mp3';
+
+  String get soundAudioAsset => 'assets/audio/tts/phonics/sound/$_audioKey.mp3';
 }
 
 class PhonicsGroup {

@@ -8,12 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/constant.dart';
+import 'app/services/learning_progress_service.dart';
 import 'app/splash_screen.dart';
 
-void main() {
+void main() async {
   /// This code is for [disabling] the landscape orientation
   ///
   WidgetsFlutterBinding.ensureInitialized();
+  await LearningProgressService.ensureReady();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then(
     (_) => runApp(const MyApp()),

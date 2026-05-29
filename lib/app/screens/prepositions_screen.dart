@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../constant.dart';
@@ -36,6 +37,9 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playGuide();
+    });
   }
 
   @override
@@ -58,7 +62,6 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
     await _tts.stop();
     await _tts.setLanguage('en-US');
     await _tts.setSpeechRate(rate);
-    await _tts.setPitch(1.0);
     await _tts.speak(text);
   }
 
@@ -67,7 +70,6 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
     await _tts.stop();
     await _tts.setLanguage('zh-CN');
     await _tts.setSpeechRate(0.42);
-    await _tts.setPitch(1.0);
     await _tts.speak(text);
   }
 
@@ -84,6 +86,16 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
     }
   }
 
+  Future<void> _playGuide() async {
+    await _playAssetOrSpeak(
+      'assets/audio/tts/prepositions/intro/welcome.mp3',
+      () => _speakEnglish(
+        'Welcome to prepositions. First watch where the ball goes, then hear the word and the sentence.',
+        rate: 0.34,
+      ),
+    );
+  }
+
   void _goToScene(int nextIndex) {
     setState(() {
       _index = nextIndex;
@@ -91,14 +103,10 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
     _movementController
       ..reset()
       ..repeat(reverse: true);
-  }
-
-  void _nextScene() {
-    _goToScene((_index + 1) % prepositionScenes.length);
-  }
-
-  void _previousScene() {
-    _goToScene((_index - 1 + prepositionScenes.length) % prepositionScenes.length);
+    _playAssetOrSpeak(
+      prepositionScenes[nextIndex].wordAudioAsset,
+      () => _speakEnglish(prepositionScenes[nextIndex].title),
+    );
   }
 
   Widget _buildIntroCard() {
@@ -109,46 +117,35 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           colors: [Color(0xFFFFF7CC), Color(0xFFD9F2FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: kActiveShadowColor,
-            offset: const Offset(0, 10),
-            blurRadius: 24,
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Where Is The Ball?',
-            style: TextStyle(
+          Text(
+            'Where Is It?',
+            style: GoogleFonts.notoSans(
               fontSize: 28,
               fontWeight: FontWeight.w800,
               color: kTitleTextColor,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'We use one happy ball to learn where things are. Tap, listen, and watch the little animation.',
-            style: TextStyle(
+          Text(
+            '这次把介词场景做得更直观了。先看动画，再听英文，再听中文解释。',
+            style: GoogleFonts.notoSans(
               fontSize: 16,
               height: 1.5,
               color: kBodyTextColor,
             ),
           ),
           const SizedBox(height: 16),
-          _buildStepTile(Icons.visibility_outlined, '1. Watch the moving ball'),
-          _buildStepTile(Icons.volume_up_outlined, '2. Hear the word'),
-          _buildStepTile(Icons.record_voice_over_outlined, '3. Say the sentence'),
+          _buildStepTile(Icons.visibility_outlined, '1. 先看小球在哪里'),
+          _buildStepTile(Icons.volume_up_outlined, '2. 听介词和句子'),
+          _buildStepTile(Icons.record_voice_over_outlined, '3. 再听中文解释'),
           const SizedBox(height: 14),
           FilledButton.tonalIcon(
-            onPressed: () => _speakChinese(
-              '欢迎来到介词乐园。看小球在哪里，听单词，再跟着说句子。',
-            ),
+            onPressed: _playGuide,
             icon: const Icon(Icons.play_circle_fill),
             label: const Text('播放学习引导'),
           ),
@@ -174,34 +171,13 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
           const SizedBox(width: 12),
           Text(
             label,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: kTitleTextColor,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProgressDots() {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: List.generate(
-        prepositionScenes.length,
-        (dotIndex) => AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          width: dotIndex == _index ? 22 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: dotIndex == _index
-                ? const Color(0xFF3B82F6)
-                : Colors.grey[300],
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
       ),
     );
   }
@@ -232,7 +208,7 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
                   children: [
                     Text(
                       _scene.title,
-                      style: const TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 34,
                         fontWeight: FontWeight.w800,
                         color: kTitleTextColor,
@@ -241,7 +217,7 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
                     const SizedBox(height: 4),
                     Text(
                       _scene.chineseTitle,
-                      style: const TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: kBodyTextColor,
@@ -251,12 +227,16 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
                 ),
               ),
               IconButton.filledTonal(
-                onPressed: _previousScene,
+                onPressed: () => _goToScene(
+                  (_index - 1 + prepositionScenes.length) %
+                      prepositionScenes.length,
+                ),
                 icon: const Icon(Icons.arrow_back),
               ),
               const SizedBox(width: 8),
               IconButton.filled(
-                onPressed: _nextScene,
+                onPressed: () =>
+                    _goToScene((_index + 1) % prepositionScenes.length),
                 icon: const Icon(Icons.arrow_forward),
               ),
             ],
@@ -269,8 +249,6 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
               borderRadius: BorderRadius.circular(24),
               gradient: const LinearGradient(
                 colors: [Color(0xFFEAF6FF), Color(0xFFFFF9EF)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
               ),
             ),
             child: ClipRRect(
@@ -278,17 +256,16 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
               child: AnimatedBuilder(
                 animation: _movementController,
                 builder: (context, child) {
-                  return _buildAnimatedScene(_scene, _movementController.value);
+                  return _buildAnimatedScene(
+                      _scene.type, _movementController.value);
                 },
               ),
             ),
           ),
           const SizedBox(height: 16),
-          _buildProgressDots(),
-          const SizedBox(height: 16),
           Text(
             _scene.exampleSentence,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: kTitleTextColor,
@@ -297,7 +274,7 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
           const SizedBox(height: 8),
           Text(
             _scene.chinesePrompt,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 16,
               height: 1.5,
               color: kBodyTextColor,
@@ -313,7 +290,7 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
             ),
             child: Text(
               _scene.playHint,
-              style: const TextStyle(
+              style: GoogleFonts.notoSans(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: kBodyTextColor,
@@ -350,12 +327,9 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
                 label: const Text('中文解释'),
               ),
               FilledButton.tonalIcon(
-                onPressed: () => _playAssetOrSpeak(
-                  _scene.phraseAudioAsset,
-                  () => _speakEnglish('Listen and say. ${_scene.exampleSentence}', rate: 0.32),
-                ),
-                icon: const Icon(Icons.mic),
-                label: const Text('跟我读'),
+                onPressed: _playGuide,
+                icon: const Icon(Icons.play_circle_fill),
+                label: const Text('再听引导'),
               ),
             ],
           ),
@@ -364,36 +338,27 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
     );
   }
 
-  Widget _buildAnimatedScene(PrepositionScene scene, double progress) {
-    switch (scene.type) {
+  Widget _buildAnimatedScene(PrepositionSceneType type, double progress) {
+    switch (type) {
       case PrepositionSceneType.inBox:
       case PrepositionSceneType.onBox:
-      case PrepositionSceneType.besideBox:
       case PrepositionSceneType.nearBox:
       case PrepositionSceneType.aboveBox:
-      case PrepositionSceneType.belowBox:
-      case PrepositionSceneType.overBox:
       case PrepositionSceneType.underBox:
       case PrepositionSceneType.inFrontOfBox:
       case PrepositionSceneType.behindBox:
-      case PrepositionSceneType.fromBox:
       case PrepositionSceneType.intoBox:
       case PrepositionSceneType.outOfBox:
-      case PrepositionSceneType.ontoBox:
-      case PrepositionSceneType.offBox:
       case PrepositionSceneType.aroundBox:
-        return _buildBoxScene(scene.type, progress);
+        return _buildBoxScene(type, progress);
       case PrepositionSceneType.betweenBoxes:
         return _buildBetweenScene(progress);
-      case PrepositionSceneType.amongTrees:
-        return _buildAmongScene(progress);
-      case PrepositionSceneType.upHill:
-      case PrepositionSceneType.downHill:
-        return _buildHillScene(scene.type, progress);
-      case PrepositionSceneType.acrossRiver:
-        return _buildAcrossScene(progress);
       case PrepositionSceneType.throughTunnel:
         return _buildTunnelScene(progress);
+      case PrepositionSceneType.acrossRiver:
+        return _buildAcrossScene(progress);
+      default:
+        return _buildBoxScene(PrepositionSceneType.onBox, progress);
     }
   }
 
@@ -409,45 +374,27 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
       case PrepositionSceneType.onBox:
         alignment = Alignment(0, -0.34 + wave);
         break;
-      case PrepositionSceneType.besideBox:
-        alignment = Alignment(-0.5, 0.02 + wave);
-        break;
       case PrepositionSceneType.nearBox:
         alignment = Alignment(-0.72, 0.02 + wave);
         break;
       case PrepositionSceneType.aboveBox:
         alignment = Alignment(0, -0.72 + wave);
         break;
-      case PrepositionSceneType.belowBox:
-        alignment = Alignment(0, 0.68 + wave);
-        break;
-      case PrepositionSceneType.overBox:
-        alignment = Alignment(-0.85 + progress * 1.7, -0.76);
-        break;
       case PrepositionSceneType.underBox:
         alignment = Alignment(0, 0.48 + wave);
         break;
       case PrepositionSceneType.inFrontOfBox:
-        alignment = Alignment(0, 0.26 + wave);
+        alignment = Alignment(0, 0.32 + wave);
         break;
       case PrepositionSceneType.behindBox:
         alignment = Alignment(0, 0.02 + wave);
         hideBehind = true;
         break;
-      case PrepositionSceneType.fromBox:
-        alignment = Alignment(-0.2 + progress * 0.9, 0.02 + wave);
-        break;
       case PrepositionSceneType.intoBox:
         alignment = Alignment(-0.85 + progress * 0.85, 0.02 + wave);
         break;
       case PrepositionSceneType.outOfBox:
-        alignment = Alignment(0.0 + progress * 0.88, 0.02 + wave);
-        break;
-      case PrepositionSceneType.ontoBox:
-        alignment = Alignment(-0.85 + progress * 0.85, 0.3 - progress * 0.64);
-        break;
-      case PrepositionSceneType.offBox:
-        alignment = Alignment(0.0 + progress * 0.86, -0.34 + progress * 0.7);
+        alignment = Alignment(progress * 0.88, 0.02 + wave);
         break;
       case PrepositionSceneType.aroundBox:
         final angle = progress * math.pi * 2;
@@ -463,32 +410,22 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
           left: 0,
           right: 0,
           bottom: 28,
-          child: Container(
-            height: 16,
-            color: const Color(0xFFE2D3B8),
-          ),
+          child: Container(height: 16, color: const Color(0xFFE2D3B8)),
         ),
         Align(
           alignment: const Alignment(0, 0.06),
           child: Container(
-            width: 130,
+            width: 140,
             height: 130,
             decoration: BoxDecoration(
               color: const Color(0xFF6AA9FF),
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 18,
-                  offset: const Offset(0, 10),
-                ),
-              ],
             ),
             child: type == PrepositionSceneType.inBox
                 ? Align(
                     alignment: const Alignment(0, -0.44),
                     child: Container(
-                      width: 118,
+                      width: 124,
                       height: 18,
                       decoration: BoxDecoration(
                         color: const Color(0xFF8BBEFF),
@@ -499,22 +436,15 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
                 : null,
           ),
         ),
-        if (!hideBehind)
-          Align(
-            alignment: alignment,
-            child: _buildBall(),
-          ),
+        if (!hideBehind) Align(alignment: alignment, child: _buildBall()),
         if (hideBehind)
           Stack(
             children: [
-              Align(
-                alignment: alignment,
-                child: _buildBall(),
-              ),
+              Align(alignment: alignment, child: _buildBall()),
               Align(
                 alignment: const Alignment(0, 0.06),
                 child: Container(
-                  width: 130,
+                  width: 140,
                   height: 130,
                   decoration: BoxDecoration(
                     color: const Color(0xFF6AA9FF),
@@ -537,62 +467,10 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
           bottom: 28,
           child: Container(height: 16, color: const Color(0xFFE2D3B8)),
         ),
+        Align(alignment: const Alignment(-0.5, 0.05), child: _buildMiniBox()),
+        Align(alignment: const Alignment(0.5, 0.05), child: _buildMiniBox()),
         Align(
-          alignment: const Alignment(-0.5, 0.05),
-          child: _buildMiniBox(),
-        ),
-        Align(
-          alignment: const Alignment(0.5, 0.05),
-          child: _buildMiniBox(),
-        ),
-        Align(
-          alignment: Alignment(0, waveOffset(progress)),
-          child: _buildBall(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAmongScene(double progress) {
-    final ballAlignment = Alignment(-0.05 + math.sin(progress * math.pi * 2) * 0.06, 0.18);
-    return Stack(
-      children: [
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 24,
-          child: Container(height: 20, color: const Color(0xFFCDE7B0)),
-        ),
-        const Align(alignment: Alignment(-0.65, 0.0), child: _Tree()),
-        const Align(alignment: Alignment(-0.15, -0.1), child: _Tree()),
-        const Align(alignment: Alignment(0.35, 0.03), child: _Tree()),
-        const Align(alignment: Alignment(0.75, -0.08), child: _Tree()),
-        Align(alignment: ballAlignment, child: _buildBall()),
-      ],
-    );
-  }
-
-  Widget _buildHillScene(PrepositionSceneType type, double progress) {
-    final x = type == PrepositionSceneType.upHill
-        ? -0.82 + progress * 1.2
-        : 0.35 + progress * 0.95;
-    final y = type == PrepositionSceneType.upHill
-        ? 0.52 - progress * 0.62
-        : -0.1 + progress * 0.62;
-    return Stack(
-      children: [
-        Align(
-          alignment: const Alignment(0, 1),
-          child: Container(
-            height: 160,
-            decoration: const BoxDecoration(
-              color: Color(0xFF9AD17B),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(120)),
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment(x, y),
+          alignment: Alignment(0, math.sin(progress * math.pi * 2) * 0.03),
           child: _buildBall(),
         ),
       ],
@@ -614,7 +492,7 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
           ),
         ),
         Align(
-          alignment: Alignment(-0.86 + progress * 1.72, 0.15 + waveOffset(progress)),
+          alignment: Alignment(-0.86 + progress * 1.72, 0.15),
           child: _buildBall(),
         ),
       ],
@@ -654,8 +532,6 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
     );
   }
 
-  double waveOffset(double progress) => math.sin(progress * math.pi * 2) * 0.03;
-
   Widget _buildMiniBox() {
     return Container(
       width: 84,
@@ -694,54 +570,15 @@ class _PrepositionsScreenState extends State<PrepositionsScreen>
         slivers: [
           SliverToBoxAdapter(
             child: PageHeader(
-              title: 'Prepositions',
+              title: 'Where?',
               primaryColor: const Color(0xFFFFD56C),
               secondaryColor: const Color(0xFF5CB8FF),
               offset: _offset,
-              onTap: () => _speakChinese('介词乐园，看看小球在哪里。'),
+              onTap: _playGuide,
             ),
           ),
           SliverToBoxAdapter(child: _buildIntroCard()),
           SliverToBoxAdapter(child: _buildSceneCard()),
-        ],
-      ),
-    );
-  }
-}
-
-class _Tree extends StatelessWidget {
-  const _Tree();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 56,
-      height: 90,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            bottom: 0,
-            child: Container(
-              width: 12,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF8B5A3C),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: const BoxDecoration(
-                color: Color(0xFF65C36D),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
         ],
       ),
     );

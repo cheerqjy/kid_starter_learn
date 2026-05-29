@@ -1,12 +1,115 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../constant.dart';
 import '../controllers/phonics_controller.dart';
 import '../models/phonics_item.dart';
 import '../widgets/page_header.dart';
+
+const Map<String, String> _phonicsSymbols = {
+  'Long ee': '/iː/',
+  'Short i': '/ɪ/',
+  'Little e': '/e/',
+  'Open a': '/æ/',
+  'Long er': '/ɜː/',
+  'Lazy uh': '/ə/',
+  'Cup sound': '/ʌ/',
+  'Long oo': '/uː/',
+  'Short oo': '/ʊ/',
+  'Long aw': '/ɔː/',
+  'Short o': '/ɒ/',
+  'Long aah': '/ɑː/',
+  'A slide': '/eɪ/',
+  'I slide': '/aɪ/',
+  'Toy sound': '/ɔɪ/',
+  'Wow sound': '/aʊ/',
+  'Go sound': '/oʊ/',
+  'Ear sound': '/ɪə/',
+  'Air sound': '/eə/',
+  'Tour sound': '/ʊə/',
+  'Pop p': '/p/',
+  'Tap t': '/t/',
+  'Kick k': '/k/',
+  'Big b': '/b/',
+  'Drum d': '/d/',
+  'Go g': '/g/',
+  'Fan f': '/f/',
+  'Vroom v': '/v/',
+  'Snake s': '/s/',
+  'Bee z': '/z/',
+  'Shh sound': '/ʃ/',
+  'Zh buzz': '/ʒ/',
+  'Thin th': '/θ/',
+  'This th': '/ð/',
+  'Hot h': '/h/',
+  'Run r': '/r/',
+  'Ch sound': '/tʃ/',
+  'Tr sound': '/tr/',
+  'Ts sound': '/ts/',
+  'J sound': '/dʒ/',
+  'Dr sound': '/dr/',
+  'Dz sound': '/dz/',
+  'Mmm sound': '/m/',
+  'Nnn sound': '/n/',
+  'Ng sound': '/ŋ/',
+  'Light l': '/l/',
+  'Y sound': '/j/',
+  'W sound': '/w/',
+};
+
+const Map<String, String> _phonicsVoices = {
+  'Long ee': 'ee',
+  'Short i': 'ih',
+  'Little e': 'eh',
+  'Open a': 'a',
+  'Long er': 'er',
+  'Lazy uh': 'uh',
+  'Cup sound': 'uh',
+  'Long oo': 'oo',
+  'Short oo': 'u',
+  'Long aw': 'aw',
+  'Short o': 'o',
+  'Long aah': 'aah',
+  'A slide': 'ay',
+  'I slide': 'eye',
+  'Toy sound': 'oy',
+  'Wow sound': 'ow',
+  'Go sound': 'oh',
+  'Ear sound': 'ear',
+  'Air sound': 'air',
+  'Tour sound': 'oor',
+  'Pop p': 'puh',
+  'Tap t': 'tuh',
+  'Kick k': 'kuh',
+  'Big b': 'buh',
+  'Drum d': 'duh',
+  'Go g': 'guh',
+  'Fan f': 'fff',
+  'Vroom v': 'vvv',
+  'Snake s': 'sss',
+  'Bee z': 'zzz',
+  'Shh sound': 'sh',
+  'Zh buzz': 'zh',
+  'Thin th': 'th',
+  'This th': 'th',
+  'Hot h': 'h',
+  'Run r': 'rrr',
+  'Ch sound': 'ch',
+  'Tr sound': 'tr',
+  'Ts sound': 'ts',
+  'J sound': 'j',
+  'Dr sound': 'dr',
+  'Dz sound': 'dz',
+  'Mmm sound': 'mmm',
+  'Nnn sound': 'nnn',
+  'Ng sound': 'ng',
+  'Light l': 'lll',
+  'Y sound': 'y',
+  'W sound': 'w',
+};
 
 class PhonicsScreen extends StatefulWidget {
   const PhonicsScreen({Key? key}) : super(key: key);
@@ -25,6 +128,9 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playIntro();
+    });
   }
 
   @override
@@ -46,7 +152,6 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
     await _tts.stop();
     await _tts.setLanguage('en-US');
     await _tts.setSpeechRate(rate);
-    await _tts.setPitch(1.0);
     await _tts.speak(text);
   }
 
@@ -55,7 +160,6 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
     await _tts.stop();
     await _tts.setLanguage('zh-CN');
     await _tts.setSpeechRate(0.42);
-    await _tts.setPitch(1.0);
     await _tts.speak(text);
   }
 
@@ -72,11 +176,34 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
     }
   }
 
-  void _showSoundSheet(PhonicsItem item) {
-    _playAssetOrSpeak(
-      item.wordAudioAsset,
-      () => _speakEnglish(item.exampleWord),
+  String _symbolOf(PhonicsItem item) =>
+      _phonicsSymbols[item.title] ?? item.symbol;
+
+  String _directVoiceOf(PhonicsItem item) =>
+      _phonicsVoices[item.title] ?? item.soundCue.split(',').first;
+
+  Future<void> _playIntro() async {
+    await _playAssetOrSpeak(
+      'assets/audio/tts/phonics/intro/welcome.mp3',
+      () => _speakEnglish(
+        'Welcome to phonics. Tap the sound first, then hear the word, and say it with me.',
+        rate: 0.34,
+      ),
     );
+  }
+
+  Future<void> _playDirectSound(PhonicsItem item) async {
+    await _playAssetOrSpeak(
+      item.soundAudioAsset,
+      () => _speakEnglish(
+        _directVoiceOf(item),
+        rate: 0.34,
+      ),
+    );
+  }
+
+  void _showSoundSheet(PhonicsItem item) {
+    _playDirectSound(item);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -117,8 +244,8 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.symbol,
-                            style: const TextStyle(
+                            _symbolOf(item),
+                            style: GoogleFonts.robotoMono(
                               fontSize: 40,
                               fontWeight: FontWeight.w800,
                               color: kTitleTextColor,
@@ -127,7 +254,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                           const SizedBox(height: 8),
                           Text(
                             item.title,
-                            style: const TextStyle(
+                            style: GoogleFonts.notoSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                               color: kTitleTextColor,
@@ -136,7 +263,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                           const SizedBox(height: 8),
                           Text(
                             item.exampleWord,
-                            style: const TextStyle(
+                            style: GoogleFonts.notoSans(
                               fontSize: 30,
                               fontWeight: FontWeight.w800,
                               color: kTitleTextColor,
@@ -145,7 +272,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                           const SizedBox(height: 6),
                           Text(
                             item.examplePhrase,
-                            style: const TextStyle(
+                            style: GoogleFonts.notoSans(
                               fontSize: 16,
                               height: 1.4,
                               color: kBodyTextColor,
@@ -155,9 +282,9 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const Text(
+                    Text(
                       'How We Learn',
-                      style: TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: kTitleTextColor,
@@ -166,7 +293,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                     const SizedBox(height: 10),
                     Text(
                       item.chinesePrompt,
-                      style: const TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 16,
                         height: 1.5,
                         color: kBodyTextColor,
@@ -182,7 +309,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                       ),
                       child: Text(
                         'Mouth tip: ${item.mouthTip}',
-                        style: const TextStyle(
+                        style: GoogleFonts.notoSans(
                           fontSize: 15,
                           height: 1.45,
                           color: kBodyTextColor,
@@ -203,12 +330,9 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                           label: const Text('中文提示'),
                         ),
                         FilledButton.tonalIcon(
-                          onPressed: () => _playAssetOrSpeak(
-                            item.wordAudioAsset,
-                            () => _speakEnglish(item.soundCue),
-                          ),
+                          onPressed: () => _playDirectSound(item),
                           icon: const Icon(Icons.volume_up),
-                          label: const Text('听声音'),
+                          label: const Text('听音标'),
                         ),
                         FilledButton.tonalIcon(
                           onPressed: () => _playAssetOrSpeak(
@@ -216,7 +340,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                             () => _speakEnglish(item.exampleWord),
                           ),
                           icon: const Icon(Icons.music_note),
-                          label: const Text('听单词'),
+                          label: const Text('听例词'),
                         ),
                         FilledButton.tonalIcon(
                           onPressed: () => _playAssetOrSpeak(
@@ -227,7 +351,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                             ),
                           ),
                           icon: const Icon(Icons.mic),
-                          label: const Text('跟我读'),
+                          label: const Text('跟我说'),
                         ),
                       ],
                     ),
@@ -249,46 +373,35 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
         borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           colors: [Color(0xFFFFF0D9), Color(0xFFFFD6CC)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: kActiveShadowColor,
-            offset: const Offset(0, 10),
-            blurRadius: 24,
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Sound Land',
-            style: TextStyle(
+          Text(
+            'Phonics',
+            style: GoogleFonts.notoSans(
               fontSize: 28,
               fontWeight: FontWeight.w800,
               color: kTitleTextColor,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Little learners do not need to memorize symbols first. We listen, watch, copy, and play.',
-            style: TextStyle(
+          Text(
+            '这次把音标卡片改得更直观了。你会先看到标准音标，再直接听这个音。',
+            style: GoogleFonts.notoSans(
               fontSize: 16,
               height: 1.5,
               color: kBodyTextColor,
             ),
           ),
           const SizedBox(height: 16),
-          _buildStepTile(Icons.remove_red_eye_outlined, '1. Watch the mouth'),
-          _buildStepTile(Icons.volume_up_outlined, '2. Hear the sound'),
-          _buildStepTile(Icons.record_voice_over_outlined, '3. Say it back'),
+          _buildStepTile(Icons.volume_up_outlined, '1. 先听这个音'),
+          _buildStepTile(Icons.menu_book_outlined, '2. 再看例词'),
+          _buildStepTile(Icons.record_voice_over_outlined, '3. 最后跟着说'),
           const SizedBox(height: 14),
           FilledButton.tonalIcon(
-            onPressed: () => _speakChinese(
-              '欢迎来到发音乐园。先看嘴巴，再听声音，最后跟着说。',
-            ),
+            onPressed: _playIntro,
             icon: const Icon(Icons.play_circle_fill),
             label: const Text('播放学习引导'),
           ),
@@ -314,7 +427,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
           const SizedBox(width: 12),
           Text(
             label,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: kTitleTextColor,
@@ -333,7 +446,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
         children: [
           Text(
             group.title,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 28,
               fontWeight: FontWeight.w800,
               color: kTitleTextColor,
@@ -342,7 +455,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
           const SizedBox(height: 4),
           Text(
             group.subtitle,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 15,
               height: 1.4,
               color: kBodyTextColor,
@@ -364,8 +477,6 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
             borderRadius: BorderRadius.circular(22),
             gradient: LinearGradient(
               colors: [item.backgroundColor, Colors.white],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
             boxShadow: [
               BoxShadow(
@@ -389,9 +500,9 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        item.symbol,
-                        style: const TextStyle(
-                          fontSize: 26,
+                        _symbolOf(item),
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: kTitleTextColor,
                         ),
@@ -417,7 +528,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: GoogleFonts.notoSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTitleTextColor,
@@ -425,21 +536,20 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  item.exampleWord,
-                  style: const TextStyle(
-                    fontSize: 22,
+                  _directVoiceOf(item),
+                  style: GoogleFonts.notoSans(
+                    fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: kTitleTextColor,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  item.mouthTip,
-                  maxLines: 2,
+                  item.exampleWord,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.35,
+                  style: GoogleFonts.notoSans(
+                    fontSize: 14,
                     color: kBodyTextColor,
                   ),
                 ),
@@ -460,7 +570,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
           primaryColor: const Color(0xFFFFC46B),
           secondaryColor: const Color(0xFFFF8A65),
           offset: _offset,
-          onTap: () => _speakChinese('发音乐园，轻轻一点开始学习。'),
+          onTap: _playIntro,
         ),
       ),
       SliverToBoxAdapter(child: _buildIntroCard()),
@@ -476,7 +586,7 @@ class _PhonicsScreenState extends State<PhonicsScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 0.86,
+              childAspectRatio: 0.88,
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) => _buildSoundCard(group.items[index], group),

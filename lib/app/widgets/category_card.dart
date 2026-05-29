@@ -13,6 +13,7 @@ class CategoryCard extends StatefulWidget {
   final double fontSize;
   final double letterSpacing;
   final int maxLines;
+  final VoidCallback? onOpen;
 
   const CategoryCard({
     Key? key,
@@ -23,6 +24,7 @@ class CategoryCard extends StatefulWidget {
     this.fontSize = 90.0,
     this.letterSpacing = 4.0,
     this.maxLines = 1,
+    this.onOpen,
   }) : super(key: key);
 
   @override
@@ -52,6 +54,7 @@ class _CategoryCardState extends State<CategoryCard> {
   void _navigate(BuildContext context, Widget screen) {
     _pushAudio();
     HapticFeedback.lightImpact();
+    widget.onOpen?.call();
     Navigator.push(
       context,
       CupertinoPageRoute(

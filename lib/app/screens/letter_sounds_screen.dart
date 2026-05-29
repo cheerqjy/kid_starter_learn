@@ -1,15 +1,47 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../constant.dart';
 import '../controllers/letter_sounds_controller.dart';
 import '../models/letter_sound_models.dart';
+import '../services/learning_progress_service.dart';
 import '../widgets/letter_video_sheet.dart';
 import '../widgets/page_header.dart';
+
+const Map<String, String> _directLetterSounds = {
+  'A': 'a',
+  'B': 'buh',
+  'C': 'kuh',
+  'D': 'duh',
+  'E': 'eh',
+  'F': 'fff',
+  'G': 'guh',
+  'H': 'huh',
+  'I': 'ih',
+  'J': 'juh',
+  'K': 'kuh',
+  'L': 'lll',
+  'M': 'mmm',
+  'N': 'nnn',
+  'O': 'o',
+  'P': 'puh',
+  'Q': 'kwuh',
+  'R': 'rrr',
+  'S': 'sss',
+  'T': 'tuh',
+  'U': 'uh',
+  'V': 'vvv',
+  'W': 'wuh',
+  'X': 'ks',
+  'Y': 'yuh',
+  'Z': 'zzz',
+};
 
 class LetterSoundsScreen extends StatefulWidget {
   const LetterSoundsScreen({Key? key}) : super(key: key);
@@ -32,8 +64,9 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
   int _stars = 0;
   int _letterQuizSeed = 0;
   int _pictureQuizSeed = 0;
-  int _successPulse = 0;
   double _offset = 0;
+  String? _rewardBanner;
+  Timer? _rewardTimer;
   LetterSoundItem? _letterQuizTarget;
   List<LetterSoundItem> _letterQuizOptions = const [];
   LetterSoundItem? _pictureQuizTarget;
@@ -54,6 +87,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
 
   @override
   void dispose() {
+    _rewardTimer?.cancel();
     _scrollController.dispose();
     _pageController.dispose();
     _heroController.dispose();
@@ -98,18 +132,20 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
     }
   }
 
-  List<LetterSoundItem> _shuffledOptions(List<LetterSoundItem> source) {
-    final items = List<LetterSoundItem>.from(source);
-    items.shuffle(_random);
-    return items;
+  String _displayLetterCue(LetterSoundItem item) =>
+      '${item.letter}  ${item.phonicsText}';
+
+  Future<void> _playDirectLetterSound(LetterSoundItem item) async {
+    final direct = _directLetterSounds[item.letter] ?? item.phonicsText;
+    await _speakEnglish(direct, rate: 0.35);
   }
 
   void _prepareQuizRound() {
     final items = _stage.items;
     _letterQuizTarget = items[_random.nextInt(items.length)];
     _pictureQuizTarget = items[_random.nextInt(items.length)];
-    _letterQuizOptions = _shuffledOptions(items);
-    _pictureQuizOptions = _shuffledOptions(items);
+    _letterQuizOptions = List<LetterSoundItem>.from(items)..shuffle(_random);
+    _pictureQuizOptions = List<LetterSoundItem>.from(items)..shuffle(_random);
   }
 
   Future<void> _selectStage(int index) async {
@@ -126,22 +162,31 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
       _selectedItemIndex = 0;
       _prepareQuizRound();
     });
-
     if (_pageController.hasClients) {
       _pageController.jumpToPage(0);
     }
-
+    await LearningProgressService.markStageCompleted('stage_${_stage.code}');
     await _playAssetOrFallback(
       _stage.introAudioAsset,
       () => _speakChinese(_stage.chinesePrompt),
     );
   }
 
-  Future<void> _celebrate() async {
+  Future<void> _showReward(String message) async {
     setState(() {
+      _rewardBanner = message;
       _stars += 1;
-      _successPulse += 1;
     });
+    _rewardTimer?.cancel();
+    _rewardTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        setState(() {
+          _rewardBanner = null;
+        });
+      }
+    });
+    await LearningProgressService.addStars(1);
+    await LearningProgressService.markStageCompleted('quiz_${_stage.code}');
     HapticFeedback.mediumImpact();
   }
 
@@ -149,9 +194,8 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
     if (_letterQuizTarget == null) {
       return;
     }
-
     if (answer.letter == _letterQuizTarget!.letter) {
-      await _celebrate();
+      await _showReward('答对啦，字母声音找到了');
       await _playAssetOrFallback(
         answer.chantAudioAsset,
         () => _speakEnglish(answer.chant, rate: 0.36),
@@ -161,14 +205,12 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
           _letterQuizSeed += 1;
           _letterQuizTarget =
               _stage.items[_random.nextInt(_stage.items.length)];
-          _letterQuizOptions = _shuffledOptions(_stage.items);
+          _letterQuizOptions = List<LetterSoundItem>.from(_stage.items)
+            ..shuffle(_random);
         });
       }
     } else {
-      await _playAssetOrFallback(
-        answer.promptAudioAsset,
-        () => _speakChinese('再听一遍，慢慢找，不着急。'),
-      );
+      await _speakChinese('再听一遍，慢慢找，不着急。');
     }
   }
 
@@ -176,9 +218,8 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
     if (_pictureQuizTarget == null) {
       return;
     }
-
     if (answer.letter == _pictureQuizTarget!.letter) {
-      await _celebrate();
+      await _showReward('太棒了，图片也找对了');
       await _playAssetOrFallback(
         answer.primaryWordAudioAsset,
         () => _speakEnglish(answer.primaryWord),
@@ -188,18 +229,19 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
           _pictureQuizSeed += 1;
           _pictureQuizTarget =
               _stage.items[_random.nextInt(_stage.items.length)];
-          _pictureQuizOptions = _shuffledOptions(_stage.items);
+          _pictureQuizOptions = List<LetterSoundItem>.from(_stage.items)
+            ..shuffle(_random);
         });
       }
     } else {
-      await _playAssetOrFallback(
-        answer.promptAudioAsset,
-        () => _speakChinese('我们再听一遍小单词。'),
-      );
+      await _speakChinese('我们再听一遍小单词。');
     }
   }
 
-  Future<void> _openVideoSheet(int initialIndex) async {
+  Future<void> _openVideoSheet(
+    int initialIndex, {
+    bool autoplayStage = false,
+  }) async {
     HapticFeedback.lightImpact();
     await showModalBottomSheet<void>(
       context: context,
@@ -212,6 +254,8 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
             items: _stage.items,
             initialIndex: initialIndex,
             stageTitle: _stage.title,
+            stageCode: _stage.code,
+            autoplayStage: autoplayStage,
           ),
         );
       },
@@ -226,8 +270,6 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
         borderRadius: BorderRadius.circular(28),
         gradient: const LinearGradient(
           colors: [Color(0xFFFFF6CF), Color(0xFFFFD7E8), Color(0xFFD9F3FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
@@ -242,22 +284,22 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Letter Sounds',
-                      style: TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
                         color: kTitleTextColor,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      '听声音、看图片、点一点、说一说。现在还可以看字母磨耳朵视频，第一次联网，后面自动缓存。',
-                      style: TextStyle(
+                      '先听字母音，再看图片，再看视频磨耳朵，最后玩小游戏。整条线已经更适合小朋友直接上手。',
+                      style: GoogleFonts.notoSans(
                         fontSize: 15,
                         height: 1.5,
                         color: kBodyTextColor,
@@ -348,6 +390,12 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                 label: '看本关视频',
                 onTap: () => _openVideoSheet(_selectedItemIndex),
               ),
+              _HeroAction(
+                icon: Icons.queue_play_next_rounded,
+                label: '本关连播',
+                onTap: () =>
+                    _openVideoSheet(_selectedItemIndex, autoplayStage: true),
+              ),
             ],
           ),
         ],
@@ -398,7 +446,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                   child: Center(
                     child: Text(
                       stage.code,
-                      style: TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: selected ? Colors.white : kTitleTextColor,
@@ -429,8 +477,6 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
               stage.primaryColor.withValues(alpha: 0.84),
               stage.secondaryColor.withValues(alpha: 0.94),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
@@ -448,7 +494,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                 children: [
                   Text(
                     stage.title,
-                    style: const TextStyle(
+                    style: GoogleFonts.notoSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -457,16 +503,16 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
                   const SizedBox(height: 8),
                   Text(
                     stage.subtitle,
-                    style: const TextStyle(
+                    style: GoogleFonts.notoSans(
                       fontSize: 15,
                       height: 1.45,
                       color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    '轻点“看视频”，首次联网缓存，后面打开会更快。',
-                    style: TextStyle(
+                  Text(
+                    '轻点“本关连播”，就能把这组字母视频自动连续看完。',
+                    style: GoogleFonts.notoSans(
                       fontSize: 13,
                       color: Colors.white,
                     ),
@@ -475,38 +521,30 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
               ),
             ),
             const SizedBox(width: 16),
-            TweenAnimationBuilder<double>(
-              key: ValueKey(_successPulse),
-              tween: Tween(begin: 0.9, end: 1.0),
-              duration: const Duration(milliseconds: 320),
-              curve: Curves.elasticOut,
-              builder: (context, value, child) {
-                return Transform.scale(scale: value, child: child);
-              },
-              child: Container(
-                width: 78,
-                height: 78,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.16),
-                  shape: BoxShape.circle,
-                  border:
-                      Border.all(color: Colors.white.withValues(alpha: 0.35)),
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.16),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.35),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('⭐', style: TextStyle(fontSize: 22)),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$_stars',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('⭐', style: TextStyle(fontSize: 22)),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$_stars',
+                    style: GoogleFonts.notoSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -537,10 +575,8 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
             child: _LetterCard(
               item: item,
               selected: selected,
-              onPlaySound: () => _playAssetOrFallback(
-                item.soundAudioAsset,
-                () => _speakEnglish(item.soundCue),
-              ),
+              cueText: _displayLetterCue(item),
+              onPlaySound: () => _playDirectLetterSound(item),
               onPlayPrimary: () => _playAssetOrFallback(
                 item.primaryWordAudioAsset,
                 () => _speakEnglish(item.primaryWord),
@@ -592,7 +628,6 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
     if (target == null) {
       return const SizedBox.shrink();
     }
-
     return _GameCard(
       key: ValueKey('letter-$_letterQuizSeed-${target.letter}'),
       title: '听一听，找字母',
@@ -600,10 +635,7 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
       colorA: const Color(0xFFFFF3E0),
       colorB: const Color(0xFFFFE0F2),
       actionIcon: Icons.volume_up_rounded,
-      onAction: () => _playAssetOrFallback(
-        target.soundAudioAsset,
-        () => _speakEnglish(target.soundCue),
-      ),
+      onAction: () => _playDirectLetterSound(target),
       child: Wrap(
         spacing: 14,
         runSpacing: 14,
@@ -626,11 +658,10 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
     if (target == null) {
       return const SizedBox.shrink();
     }
-
     return _GameCard(
       key: ValueKey('picture-$_pictureQuizSeed-${target.letter}'),
       title: '听一听，找图片',
-      subtitle: '这个小游戏更适合小朋友，听到单词后，点它对应的图片。',
+      subtitle: '更适合小朋友，听到单词后，点它对应的图片。',
       colorA: const Color(0xFFE8F5E9),
       colorB: const Color(0xFFE1F5FE),
       actionIcon: Icons.hearing_rounded,
@@ -670,21 +701,21 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '怎么玩更顺手',
-            style: TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: kTitleTextColor,
             ),
           ),
-          SizedBox(height: 12),
-          _TipRow(emoji: '1', text: '先滑动大卡片，听字母音和两个例词。'),
-          _TipRow(emoji: '2', text: '再点“看视频”，让孩子边听边磨耳朵。'),
-          _TipRow(emoji: '3', text: '最后玩两个小游戏，把声音和图片、字母连起来。'),
+          const SizedBox(height: 12),
+          const _TipRow(emoji: '1', text: '先滑动大卡片，听字母音和两个例词。'),
+          const _TipRow(emoji: '2', text: '再点“看视频磨耳朵”或“本关连播”。'),
+          const _TipRow(emoji: '3', text: '最后玩小游戏，把声音和图片、字母连起来。'),
         ],
       ),
     );
@@ -693,30 +724,86 @@ class _LetterSoundsScreenState extends State<LetterSoundsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: PageHeader(
-              title: 'ABC Sounds',
-              primaryColor: const Color(0xFFFFC870),
-              secondaryColor: const Color(0xFFFF7B72),
-              offset: _offset,
-              onTap: () => _playAssetOrFallback(
-                'assets/audio/tts/letter_sounds/intro/welcome.mp3',
-                () => _speakChinese('字母发音乐园，轻轻一点就可以开始。'),
+      body: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: PageHeader(
+                  title: 'ABC Sounds',
+                  primaryColor: const Color(0xFFFFC870),
+                  secondaryColor: const Color(0xFFFF7B72),
+                  offset: _offset,
+                  onTap: () => _playAssetOrFallback(
+                    'assets/audio/tts/letter_sounds/intro/welcome.mp3',
+                    () => _speakChinese('字母发音乐园，轻轻一点就可以开始。'),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(child: _buildHeroCard()),
+              SliverToBoxAdapter(child: _buildStageSelector()),
+              SliverToBoxAdapter(child: _buildStageCard()),
+              SliverToBoxAdapter(child: _buildLetterCarousel()),
+              SliverToBoxAdapter(child: _buildDots()),
+              SliverToBoxAdapter(child: _buildLetterQuiz()),
+              SliverToBoxAdapter(child: _buildPictureQuiz()),
+              SliverToBoxAdapter(child: _buildHowToPlay()),
+            ],
+          ),
+          if (_rewardBanner != null)
+            Positioned(
+              top: 110,
+              left: 20,
+              right: 20,
+              child: IgnorePointer(
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.88, end: 1),
+                  duration: const Duration(milliseconds: 260),
+                  builder: (context, value, child) {
+                    return Transform.scale(scale: value, child: child);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4B5),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.orange.withValues(alpha: 0.22),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('⭐', style: TextStyle(fontSize: 24)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _rewardBanner!,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.notoSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: kTitleTextColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('✨', style: TextStyle(fontSize: 24)),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(child: _buildHeroCard()),
-          SliverToBoxAdapter(child: _buildStageSelector()),
-          SliverToBoxAdapter(child: _buildStageCard()),
-          SliverToBoxAdapter(child: _buildLetterCarousel()),
-          SliverToBoxAdapter(child: _buildDots()),
-          SliverToBoxAdapter(child: _buildLetterQuiz()),
-          SliverToBoxAdapter(child: _buildPictureQuiz()),
-          SliverToBoxAdapter(child: _buildHowToPlay()),
         ],
       ),
     );
@@ -753,7 +840,7 @@ class _HeroBubble extends StatelessWidget {
       child: Center(
         child: Text(
           label,
-          style: const TextStyle(
+          style: GoogleFonts.notoSans(
             fontSize: 22,
             fontWeight: FontWeight.w800,
             color: Colors.white,
@@ -792,7 +879,7 @@ class _HeroAction extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
+                style: GoogleFonts.notoSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: kTitleTextColor,
@@ -809,6 +896,7 @@ class _HeroAction extends StatelessWidget {
 class _LetterCard extends StatelessWidget {
   final LetterSoundItem item;
   final bool selected;
+  final String cueText;
   final VoidCallback onPlaySound;
   final VoidCallback onPlayPrimary;
   final VoidCallback onPlaySecondary;
@@ -819,6 +907,7 @@ class _LetterCard extends StatelessWidget {
   const _LetterCard({
     required this.item,
     required this.selected,
+    required this.cueText,
     required this.onPlaySound,
     required this.onPlayPrimary,
     required this.onPlaySecondary,
@@ -835,12 +924,7 @@ class _LetterCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
-          colors: [
-            item.accentColor.withValues(alpha: 0.9),
-            Colors.white,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          colors: [item.accentColor.withValues(alpha: 0.9), Colors.white],
         ),
         boxShadow: [
           BoxShadow(
@@ -864,7 +948,7 @@ class _LetterCard extends StatelessWidget {
                 ),
                 child: Text(
                   item.phonicsText,
-                  style: const TextStyle(
+                  style: GoogleFonts.notoSans(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -885,7 +969,7 @@ class _LetterCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             item.letter,
-            style: const TextStyle(
+            style: GoogleFonts.notoSans(
               fontSize: 78,
               height: 1,
               fontWeight: FontWeight.w800,
@@ -894,8 +978,8 @@ class _LetterCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            item.soundCue,
-            style: const TextStyle(
+            cueText,
+            style: GoogleFonts.notoSans(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -942,7 +1026,7 @@ class _LetterCard extends StatelessWidget {
             ),
             child: Text(
               item.chinesePrompt,
-              style: const TextStyle(
+              style: GoogleFonts.notoSans(
                 fontSize: 14,
                 height: 1.45,
                 color: kBodyTextColor,
@@ -1013,7 +1097,7 @@ class _WordChip extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: GoogleFonts.notoSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTitleTextColor,
@@ -1055,11 +1139,7 @@ class _GameCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
-        gradient: LinearGradient(
-          colors: [colorA, colorB],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: LinearGradient(colors: [colorA, colorB]),
         boxShadow: [
           BoxShadow(
             color: colorB.withValues(alpha: 0.16),
@@ -1079,7 +1159,7 @@ class _GameCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color: kTitleTextColor,
@@ -1088,7 +1168,7 @@ class _GameCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: GoogleFonts.notoSans(
                         fontSize: 14,
                         height: 1.45,
                         color: kBodyTextColor,
@@ -1146,7 +1226,7 @@ class _QuizBubble extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 label,
-                style: TextStyle(
+                style: GoogleFonts.notoSans(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: color,
@@ -1201,7 +1281,7 @@ class _PictureChoice extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: GoogleFonts.notoSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: kTitleTextColor,
@@ -1241,7 +1321,7 @@ class _TipRow extends StatelessWidget {
             child: Center(
               child: Text(
                 emoji,
-                style: const TextStyle(
+                style: GoogleFonts.notoSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: kTitleTextColor,
@@ -1253,7 +1333,7 @@ class _TipRow extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: GoogleFonts.notoSans(
                 fontSize: 15,
                 height: 1.45,
                 color: kBodyTextColor,
