@@ -10,6 +10,14 @@
 
 这个项目面向中国 3-6 岁、只会说中文、几乎没有英语基础的小朋友，尽量用图片、语音、动画、点击互动来帮助孩子听得懂、学得会、愿意开口。
 
+## 网盘下载
+
+> 百度网盘下载链接：
+>
+> [https://pan.baidu.com/s/19vMQgyZriOMK39zuOdY1mw?pwd=m33d](https://pan.baidu.com/s/19vMQgyZriOMK39zuOdY1mw?pwd=m33d)
+>
+> 提取码：`m33d`
+
 官方主页：https://10000yun.com/
 
 教程及配置：https://10000yun.com/2487.html
